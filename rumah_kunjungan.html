@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kunjungan & Kiriman</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef2ff,#fdf2f8);color:#222}
+.app{max-width:720px;margin:auto;min-height:100vh;padding:20px}.card{background:#fff;border-radius:24px;padding:24px;box-shadow:0 10px 30px #0001}
+h1{margin-top:0}.nav{display:flex;gap:8px;margin:15px 0;flex-wrap:wrap}.nav button,.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:bold;cursor:pointer;background:#e9e7ff}
+.nav button.active,.primary{background:#6d5dfc;color:#fff}.slide{display:none}.slide.active{display:block}
+.item{background:#f7f7fb;border-radius:15px;padding:14px;margin:10px 0}.muted{color:#777}
+input,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:12px;font:inherit}
+textarea{min-height:110px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.small{font-size:13px}.danger{background:#ffe1e1}.success{color:#16833b;font-weight:bold}
+@media(max-width:500px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="card">
+<h1>💌 Rumah Kunjungan</h1>
+<p class="muted">Catatan kunjungan & kiriman untuk Ibu</p>
+
+<div class="nav">
+<button class="active" onclick="showSlide(0)">🏠 Home</button>
+<button onclick="showSlide(1)">📋 Kunjungan</button>
+<button onclick="showSlide(2)">📦 Kiriman</button>
+</div>
+
+<section class="slide active">
+<h2>🌷 Semangat hari ini!</h2>
+<div class="item"><b>“Tetap semangat. Hari ini mungkin berat, tapi kamu tidak sendirian.” ❤️</b></div>
+<div class="item">👩 Ibu bisa membuka halaman ini untuk melihat catatan terbaru.</div>
+</section>
+
+<section class="slide">
+<h2>📋 Kunjungan</h2>
+<div id="visitList"></div>
+</section>
+
+<section class="slide">
+<h2>📦 Kiriman</h2>
+<div id="sendList"></div>
+</section>
+
+<hr>
+<h3>🔐 Login Pemilik</h3>
+<p class="small muted">Mode pemilik dipakai untuk menambah/mengubah data. Data pada versi ini tersimpan di browser perangkat ini.</p>
+<input id="pin" type="password" placeholder="Masukkan PIN pemilik">
+<button class="btn primary" onclick="login()">Masuk</button>
+<div id="owner" style="display:none;margin-top:20px">
+<h3>Tambah Kunjungan</h3>
+<div class="row"><input id="vDate" placeholder="Contoh: Besok, jam 11"><input id="vPlace" placeholder="Tempat"></div>
+<textarea id="vNote" placeholder="Catatan kunjungan"></textarea>
+<button class="btn primary" onclick="addVisit()">Simpan kunjungan</button>
+
+<h3>Tambah Kiriman</h3>
+<textarea id="sItems" placeholder="Contoh: HP, charger laptop, parfum..."></textarea>
+<button class="btn primary" onclick="addSend()">Simpan kiriman</button>
+<button class="btn danger" onclick="logout()">Keluar</button>
+</div>
+</div>
+</div>
+
+<script>
+const PIN="1234"; // GANTI PIN INI
+let visits=JSON.parse(localStorage.getItem("visits")||"[]");
+let sends=JSON.parse(localStorage.getItem("sends")||"[]");
+
+function showSlide(n){
+ document.querySelectorAll(".slide").forEach((x,i)=>x.classList.toggle("active",i===n));
+ document.querySelectorAll(".nav button").forEach((x,i)=>x.classList.toggle("active",i===n));
+}
+function render(){
+ visitList.innerHTML=visits.length?visits.map((x,i)=>`<div class="item"><b>📅 ${x.date}</b><br>${x.place||""}<br>${x.note||""}</div>`).join(""):"<p class='muted'>Belum ada jadwal kunjungan.</p>";
+ sendList.innerHTML=sends.length?sends.map(x=>`<div class="item">📦 ${x}</div>`).join(""):"<p class='muted'>Belum ada daftar kiriman.</p>";
+}
+function login(){
+ if(pin.value===PIN){owner.style.display="block";alert("Login berhasil!");}
+ else alert("PIN salah.");
+}
+function addVisit(){
+ visits.push({date:vDate.value,place:vPlace.value,note:vNote.value});
+ localStorage.setItem("visits",JSON.stringify(visits));vDate.value=vPlace.value=vNote.value="";render();
+}
+function addSend(){
+ if(sItems.value.trim()){sends.push(sItems.value.trim());localStorage.setItem("sends",JSON.stringify(sends));sItems.value="";render();}
+}
+function logout(){owner.style.display="none";pin.value=""}
+render();
+</script>
+</body>
+</html>
